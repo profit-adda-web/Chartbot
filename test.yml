@@ -2,15 +2,15 @@ name: Run test.py and generate BTC CSV
 
 on:
   workflow_dispatch:  # Allows manual triggering
-  push:               # Optional: run on push to main
+  push:
     branches: [ main ]
-  schedule:           # Optional: run on a schedule
+  schedule:
     - cron: '0 0 * * *'  # Daily at midnight UTC
 
 jobs:
   generate-csv:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -41,3 +41,6 @@ jobs:
         git add btc_ml_ma.csv
         git commit -m "Update BTC CSV data [skip ci]" || echo "No changes to commit"
         git push
+      env:
+        # This uses the default GITHUB_TOKEN for authentication
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
