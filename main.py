@@ -1,36 +1,24 @@
-import requests
 import pandas as pd
-from datetime import datetime, timedelta
 import mplfinance as mpf
-import indilib   # 👈 import your indicator functions
+import techindilib   # technical indicator library
 
-# --- API fetch ---
-base_url = "https://api.india.delta.exchange"
-url = f"{base_url}/v2/history/candles"
-
+#input_csv_path
 symbol = "BTCUSD"
 interval = "15m"
-end = int(datetime.now().timestamp())
-start = int((datetime.now() - timedelta(days=1)).timestamp())
+to_date="20250910"
+from_date="20250909"
 
-params = {
-    "symbol": symbol,
-    "resolution": interval,
-    "start": start,
-    "end": end
-}
-
-r = requests.get(url, params=params)
-data = r.json().get("result", [])
-
-df = pd.DataFrame(data, columns=["time", "open", "high", "low", "close", "volume"]).sort_values("time")
-df["time"] = pd.to_datetime(df["time"], unit="s")
-df["time"] = df["time"].dt.tz_localize("UTC").dt.tz_convert("Asia/Kolkata")
+csv_path=f"{symbol}_{from_date}_{to_date}_{interval}.csv"
+df=pd.read_csv(csv_path)
+ #Convert timestamp column to datetime
+df["time"] = pd.to_datetime(df["time"])
+# Set as index
 df.set_index("time", inplace=True)
+print(df)
 
 # --- Apply indicator(s) ---
-df = indilib.MA(df, 20)   # Add 20-period MA
-df = indilib.MA(df, 50)   # Add 50-period MA
+df = techindilib.MA(df, 20)   # Add 20-period MA
+df = techindilib.MA(df, 50)   # Add 50-period MA
 
 # --- Plot ---
 apds = [
@@ -42,7 +30,7 @@ mpf.plot(
     df,
     type="candle",
     style="charles",
-    title=f"{symbol} {interval} Candlestick Chart",
+    volume=False,
     addplot=apds,
-    volume=False
+    title=f"{symbol} {interval} Candlestick Chart"
 )
