@@ -31,6 +31,6 @@ df["time"] = df["time"].dt.tz_localize("UTC").dt.tz_convert("Asia/Kolkata")
 df.set_index("time", inplace=True)
 print(df)
 csv_path=f"{symbol}_{from_date.strftime('%Y%m%d')}_{to_date.strftime('%Y%m%d')}_{interval}.csv"
-df.to_csv(f"CSV/{csv_path}")
+df.to_csv(f"Chartbot/CSV/{csv_path}")
 print(f"{csv_path} Generated SuccessFully")
 
