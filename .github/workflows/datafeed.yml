@@ -1,4 +1,4 @@
-name: Run datafeed.py and generate BTC CSV
+name: Run datafeed.py and generate CSV
 
 on:
   workflow_dispatch:   # Manual trigger
@@ -23,7 +23,6 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install requests pandas
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Run datafeed.py
@@ -34,7 +33,7 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add *.csv
-        git commit -m "Update BTC CSV [skip ci]" || echo "No changes to commit"
+        git commit -m "Update CSV [skip ci]" || echo "No changes to commit"
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
