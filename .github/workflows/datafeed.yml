@@ -28,18 +28,12 @@ jobs:
     - name: Run datafeed.py
       run: python datafeed.py
 
-    - name: Upload CSV as artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: btc-csv
-        path: btc_ml_ma.csv
-
     - name: Commit and push CSV to repository
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git add btc_ml_ma.csv
-        git commit -m "Update BTC CSV data [skip ci]" || echo "No changes to commit"
+        git add *.csv
+        git commit -m "Update BTC CSV [skip ci]" || echo "No changes to commit"
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
