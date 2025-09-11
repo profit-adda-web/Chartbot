@@ -8,7 +8,7 @@ interval = "15m"
 to_date="20250910"
 from_date="20250909"
 
-csv_path=f"{symbol}_{from_date}_{to_date}_{interval}.csv"
+csv_path=f"CSV/{symbol}_{from_date}_{to_date}_{interval}.csv"
 df=pd.read_csv(csv_path)
  #Convert timestamp column to datetime
 df["time"] = pd.to_datetime(df["time"])
@@ -34,3 +34,4 @@ mpf.plot(
     addplot=apds,
     title=f"{symbol} {interval} Candlestick Chart"
 )
+
