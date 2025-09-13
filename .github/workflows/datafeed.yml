@@ -1,4 +1,4 @@
-name: Run datafeed.py and generate CSV
+name: Run dashboard.py and generate CSV
 
 on:
   workflow_dispatch:   # Manual trigger
