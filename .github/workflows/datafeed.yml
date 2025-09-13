@@ -26,8 +26,8 @@ jobs:
     - name: Create CSV folder
       run: mkdir -p CSV
 
-    - name: Run datafeed.py
-      run: python datafeed.py
+    - name: Run dashboard.py
+      run: python dashboard.py
 
     - name: Commit and push CSV to repository
       run: |
