@@ -1,0 +1,42 @@
+name: Run datafeed and save CSV
+
+on:
+  workflow_dispatch:   # Run manually from GitHub Actions tab
+  push:
+    branches:
+      - main           # Run when you push to main
+
+jobs:
+  run-datafeed:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run datafeed script
+      run: |
+        mkdir -p CSV
+        python - <<'EOF'
+import marketfeed
+csv_path, df = marketfeed.delta_fetch_data(symbol="BTCUSD", interval="15m", days=1)
+print(f"CSV saved at: {csv_path}")
+EOF
+
+    - name: Commit and push CSV
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add CSV/*.csv
+        git commit -m "Auto-update CSV data [skip ci]" || echo "No changes to commit"
+        git push
