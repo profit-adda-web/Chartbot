@@ -3,14 +3,56 @@ import pandas as pd
 import mplfinance as mpf
 from fastapi import FastAPI, Query
 from fastapi.responses import StreamingResponse
+from fastapi.responses import HTMLResponse
 from datetime import datetime, timedelta
 import indicators as indi
 import io, requests, marketfeed, matplotlib
 matplotlib.use('Agg')
 
 app = FastAPI()
-
 @app.get("/chart")
+def get_chart(
+    symbol: str = Query("BTCUSD"),
+    interval: str = Query("15m"),
+    days: int = Query(1)
+):
+    csv_path,dframe=marketfeed.delta_fetch_data(symbol=symbol, interval=interval, days=days)
+    df = pd.read_csv(csv_path)
+    df["time"] = pd.to_datetime(df["time"])
+    # Set as index
+    df.set_index("time", inplace=True)
+    df.to_csv(csv_path)
+    
+    buf = io.BytesIO()
+
+    # main chart
+    style = mpf.make_mpf_style(
+    base_mpf_style="charles",
+    facecolor="black",   # axes background
+    figcolor="black",    # outer figure background
+    edgecolor="black",   # edge around the chart
+    gridcolor="white" ,    # optional: grid color
+        rc={
+        "axes.labelcolor": "darkorange",   # axis labels
+        "xtick.color": "darkorange",       # x-axis tick numbers
+        "ytick.color": "darkorange" ,       # y-axis tick numbers (right side)
+        "xtick.labelsize": 15,        # font size for x-axis numbers
+        "ytick.labelsize": 15        # font size for y-axis numbers
+    }
+)
+    mpf.plot(
+        df,
+        type="candle",
+        style=style,
+        volume=True,
+##        addplot=add_plots,
+    figsize=(19.2, 10.8),  # 1920/100 = 19.2, 1080/100 = 10.8 (assuming 100 DPI)
+    title=f"{symbol} {interval} Candlestick Chart",
+    savefig=dict(fname=buf, format="png"))
+
+    buf.seek(0)
+    return StreamingResponse(buf, media_type="image/png")
+@app.get("/chart/ma&rsi")
 def get_chart(
     symbol: str = Query("BTCUSD"),
     interval: str = Query("15m"),
@@ -33,7 +75,7 @@ def get_chart(
         mpf.make_addplot(df['MA_3'],color="darkorange"),
         mpf.make_addplot(df['MA_6'], color="green"),
         mpf.make_addplot(df['MA_9'], color="blue"),
-        mpf.make_addplot(df['RSI'],panel=2, color="gold",width=2.0)
+        mpf.make_addplot(df['RSI'],panel=2, color="gold",width=2.0,ylabel="RSI")
     ]
 
 
@@ -65,7 +107,30 @@ def get_chart(
     buf.seek(0)
     return StreamingResponse(buf, media_type="image/png")
 
-
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def home():
-    return {"msg": "Go to /chart?symbol=BTCUSD&interval=15m&days=1"}
+    return """
+    <html>
+        <head>
+            <title>Chartbot Links</title>
+        </head>
+        <body style="font-family: Arial; text-align: center; margin-top: 50px;">
+            <h2>One Click Chartbot Links</h2>
+            
+            <!-- Link that opens in new tab -->
+            <p>
+                <a href="http://127.0.0.1:8000/chart?symbol=BTCUSD&interval=15m&days=1" target="_blank">
+                    <button style="padding:10px 20px; font-size:16px;">http://127.0.0.1:8000/chart?symbol=BTCUSD&interval=15m&days=1</button>
+                </a>
+            </p>
+            
+            <!-- Another link as button -->
+            <p>
+                <a href="http://127.0.0.1:8000/chart/ma&rsi?symbol=BTCUSD&interval=15m&days=1" target="_blank">
+                    <button style="padding:10px 20px; font-size:16px;">http://127.0.0.1:8000/chart/ma&rsi?symbol=BTCUSD&interval=15m&days=1</button>
+                </a>
+            </p>
+        </body>
+    </html>
+    """
+
