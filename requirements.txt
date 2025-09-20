@@ -5,3 +5,4 @@ mplfinance
 fastapi
 uvicorn
 jinja2
+scikit-learn
