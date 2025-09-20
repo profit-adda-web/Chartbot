@@ -4,3 +4,4 @@ matplotlib
 mplfinance
 fastapi
 uvicorn
+jinja2
