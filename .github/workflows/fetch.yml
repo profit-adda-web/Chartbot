@@ -1,0 +1,31 @@
+name: Fetch BTCUSD Data
+
+on:
+  workflow_dispatch:  # manual trigger
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install minimal dependencies
+        run: pip install pandas requests
+
+      - name: Run marketfeed
+        run: |
+          python -c "from marketfeed import delta_fetch_data; delta_fetch_data('BTCUSD','15m'); delta_fetch_data('BTCUSD','1d')"
+
+      - name: Commit CSVs
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add CSV/*.csv
+          git commit -m "Update BTCUSD data (15m & 1d)" || echo "No changes to commit"
+          git push
