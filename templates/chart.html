@@ -1,1 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chart-{{symbol}} {{interval}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #111;
+            color: #ddd;
+            margin: 0;
+            padding: 20px;
+        }
+        .controls {
+            background-color: #222;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .controls label {
+            margin-right: 15px;
+        }
+        .controls input, .controls select {
+            background-color: #333;
+            color: white;
+            border: 1px solid #444;
+            padding: 5px;
+            margin-right: 15px;
+        }
+        .controls button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+        .chart-container {
+            text-align: center;
+            position: relative;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .chart-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .indicator {
+            display: inline-block;
+            margin-right: 15px;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        /* Add plot indicators */
+        .ma3 { background-color: darkorange; color: white; }
+        .ma6 { background-color: green; color: white; }
+        .ma9 { background-color: blue; color: white; }
+        .rsi { background-color: purple; color: white; }
+        .lr { background-color: magenta; color: white; }
+    </style>
+</head>
+<body>    
+    <div class="controls">
+        <form id="chartForm">
+            <label>
+                Symbol: <input type="text" name="symbol" value="{{symbol}}">
+            </label>
+            <label>
+                Interval: 
+                <select name="interval">
+                    <option value="1m" {% if interval == "1m" %}selected{% endif %}>1m</option>
+                    <option value="5m" {% if interval == "5m" %}selected{% endif %}>5m</option>
+                    <option value="15m" {% if interval == "15m" %}selected{% endif %}>15m</option>
+                    <option value="1h" {% if interval == "1h" %}selected{% endif %}>1h</option>
+                    <option value="4h" {% if interval == "4h" %}selected{% endif %}>4h</option>
+                    <option value="1d" {% if interval == "1d" %}selected{% endif %}>1d</option>
+                </select>
+            </label>
+            <label>
+                Days: <input type="number" name="days" value="{{days}}" min="1">
+            </label>
+            <label>
+                View:
+                <select name="view">
+                    <option value="candles" {% if view == "candles" %}selected{% endif %}>Candles</option>
+                    <option value="ma_rsi" {% if view == "ma_rsi" %}selected{% endif %}>MA + RSI</option>
+                    <option value="lr_ma" {% if view == "lr_ma" %}selected{% endif %}>Linear Regression</option>
+                </select>
+            </label>
+            <button type="button" onclick="updateChart()">Update Chart</button>
+        </form>
+    </div>
+    
+    <div class="chart-container">
+        <!-- Chart information indicators - Only add plot indicators -->
+        <div class="chart-info">
+            <!-- Add plot indicators -->
+            {% if view == "ma_rsi" %}
+                <span class="indicator ma3">MA 3</span>
+                <span class="indicator ma6">MA 6</span>
+                <span class="indicator ma9">MA 9</span>
+                <span class="indicator rsi">RSI</span>
+            {% endif %}
+            
+            {% if view == "lr_ma" %}
+                <span class="indicator ma3">MA 3</span>
+                <span class="indicator ma9">MA 9</span>
+                <span class="indicator lr">LR Pred</span>
+            {% endif %}
+        </div>
+        
+        <img id="chartImage" src="{{chart_image}}" alt="Financial Chart">
+    </div>
 
+    <script>
+        function updateChart() {
+            const form = document.getElementById('chartForm');
+            const formData = new FormData(form);
+            
+            fetch('/update_chart', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('chartImage').src = data.image;
+                
+                // Update add plot indicators based on view type
+                const chartInfo = document.querySelector('.chart-info');
+                
+                // Remove existing add plot indicators
+                chartInfo.innerHTML = '';
+                
+                // Get the view type
+                const view = formData.get('view');
+                
+                // Add new add plot indicators based on view
+                if (view === 'ma_rsi') {
+                    chartInfo.innerHTML += '<span class="indicator ma3">MA 3</span>';
+                    chartInfo.innerHTML += '<span class="indicator ma6">MA 6</span>';
+                    chartInfo.innerHTML += '<span class="indicator ma9">MA 9</span>';
+                    chartInfo.innerHTML += '<span class="indicator rsi">RSI</span>';
+                } else if (view === 'lr_ma') {
+                    chartInfo.innerHTML += '<span class="indicator ma3">MA 3</span>';
+                    chartInfo.innerHTML += '<span class="indicator ma9">MA 9</span>';
+                    chartInfo.innerHTML += '<span class="indicator lr">LR Pred</span>';
+                }
+                
+                // Update URL without reloading the page
+                const params = new URLSearchParams(formData);
+                window.history.replaceState({}, '', `/chart?${params.toString()}`);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
