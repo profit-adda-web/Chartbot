@@ -75,11 +75,19 @@
                 Interval: 
                 <select name="interval">
                     <option value="1m" {% if interval == "1m" %}selected{% endif %}>1m</option>
+                    <option value="3m" {% if interval == "3m" %}selected{% endif %}>3m</option>
                     <option value="5m" {% if interval == "5m" %}selected{% endif %}>5m</option>
                     <option value="15m" {% if interval == "15m" %}selected{% endif %}>15m</option>
+                    <option value="30m" {% if interval == "30m" %}selected{% endif %}>30m</option>
                     <option value="1h" {% if interval == "1h" %}selected{% endif %}>1h</option>
+                    <option value="2h" {% if interval == "2h" %}selected{% endif %}>2h</option>
                     <option value="4h" {% if interval == "4h" %}selected{% endif %}>4h</option>
+                    <option value="6h" {% if interval == "6h" %}selected{% endif %}>6h</option>
                     <option value="1d" {% if interval == "1d" %}selected{% endif %}>1d</option>
+                    <option value="7d" {% if interval == "7d" %}selected{% endif %}>7d</option>
+                    <option value="30d" {% if interval == "30d" %}selected{% endif %}>30d</option>
+                    <option value="1w" {% if interval == "1w" %}selected{% endif %}>1w</option>
+                    <option value="2w" {% if interval == "2w" %}selected{% endif %}>2w</option>
                 </select>
             </label>
             <label>
