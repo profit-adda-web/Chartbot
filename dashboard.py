@@ -128,7 +128,7 @@ def chart_endpoint(
     buf = create_chart_image(df, view=view)
     
     # Return HTML page with the chart image and controls
-    return templates.TemplateResponse("3chart.html", {
+    return templates.TemplateResponse("chart.html", {
         "request": request,
         "symbol": symbol,
         "interval": interval,
