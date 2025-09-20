@@ -1,5 +1,3 @@
-Chartbot by Profit Adda Web for more info Visit https://www.profitaddaweb.com
-
 # 📊 Chartbot
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
@@ -8,7 +6,7 @@ Chartbot by Profit Adda Web for more info Visit https://www.profitaddaweb.com
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen)
 
 **Chartbot** is an open-source Python project by **Profit Adda Web** for market data analysis and visualization.  
-It fetches live or historical data, computes technical indicators, and generates interactive dashboards to assist in trading and market research.
+It fetches live or historical data, computes technical indicators, and generates interactive dashboards to assist in trading and market research for more info visit https://www.profitaddaweb.com
 
 ---
 
