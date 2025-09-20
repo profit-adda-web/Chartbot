@@ -34,7 +34,7 @@ def delta_fetch_data(symbol:str, interval:str, days:int=1):
     # Ensure CSV directory exists
     os.makedirs("CSV", exist_ok=True)
     
-    csv_path = f"CSV/{symbol}_{from_date.strftime('%Y%m%d')}_{to_date.strftime('%Y%m%d')}_{interval}.csv"
+    csv_path = f"CSV/{symbol}_{interval}.csv"
     df.to_csv(f"{csv_path}")
     print(f"{csv_path}")
     
