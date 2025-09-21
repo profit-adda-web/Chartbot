@@ -42,7 +42,7 @@ def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
             mpf.make_addplot(df['MA_3'],color='darkorange',label='MA 3'),
             mpf.make_addplot(df['MA_6'],color='green',label='MA 6'),
             mpf.make_addplot(df['MA_9'],color='blue',label='MA 9'),
-            mpf.make_addplot(df['RSI'], panel=2, width=2.0,color='purple', ylabel="RSI"),
+            mpf.make_addplot(df['RSI'], panel=2, width=2.0,color='purple', ylabel="RSI")
         ]
     elif view == "lr_ma":
         # Build feature matrix using available MAs (drop NaNs)
@@ -61,14 +61,14 @@ def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
             add_plots = [
                 mpf.make_addplot(df['MA_3'],color='darkorange'),
                 mpf.make_addplot(df['MA_9'],color='blue'),
-                mpf.make_addplot(df['LR_PRED'], width=2.0,color='purple'),
+                mpf.make_addplot(df['LR_PRED'], width=2.0,color='purple')
             ]
         else:
             # fallback to MA-only if not enough data to train
             add_plots = [
             mpf.make_addplot(df['MA_3'],color='darkorange'),
             mpf.make_addplot(df['MA_6'],color='green'),
-            mpf.make_addplot(df['MA_9'],color='blue'),
+            mpf.make_addplot(df['MA_9'],color='blue')
             ]
     else:
         add_plots = []
@@ -124,6 +124,7 @@ def chart_endpoint(
     # Keep a copy of original index column if present
     if 'time' in df.columns:
         df['time'] = pd.to_datetime(df['time'])
+        df.set_index("time", inplace=True)
 
     buf = create_chart_image(df, view=view)
     
