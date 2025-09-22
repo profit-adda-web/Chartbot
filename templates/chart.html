@@ -58,11 +58,51 @@
             font-weight: bold;
         }
         /* Add plot indicators */
-        .ma3 { background-color: darkorange; color: white; }
-        .ma6 { background-color: green; color: white; }
-        .ma9 { background-color: blue; color: white; }
-        .rsi { background-color: purple; color: white; }
-        .lr { background-color: magenta; color: white; }
+    .ma3 { background-color: darkorange; color: white; }
+    .ma6 { background-color: green; color: white; }
+    .ma9 { background-color: blue; color: white; }
+    .rsi { background-color: purple; color: white; }
+    .lr { background-color: magenta; color: white; }
+    .ma14 { background-color: orange; color: white; }
+    .ema14 { background-color: cyan; color: #222; }
+    .mom { background-color: magenta; color: white; }
+    .roc { background-color: yellow; color: #222; }
+    .trix { background-color: lime; color: #222; }
+    .atr { background-color: red; color: white; }
+    .bbupper { background-color: orange; color: #222; }
+    .bbmiddle { background-color: white; color: #222; }
+    .bblower { background-color: orange; color: #222; }
+    .kelupper { background-color: green; color: white; }
+    .kelmiddle { background-color: white; color: #222; }
+    .kellower { background-color: green; color: white; }
+    .donch { background-color: blue; color: white; }
+    .stddev { background-color: purple; color: white; }
+    .pivot { background-color: white; color: #222; }
+    .r1 { background-color: green; color: white; }
+    .s1 { background-color: red; color: white; }
+    .stok { background-color: orange; color: #222; }
+    .stema { background-color: orange; color: #222; }
+    .sdema { background-color: purple; color: white; }
+    .stsma { background-color: orange; color: #222; }
+    .sdsma { background-color: purple; color: white; }
+    .adx { background-color: yellow; color: #222; }
+    .macd { background-color: orange; color: #222; }
+    .macdsignal { background-color: purple; color: white; }
+    .macdhist { background-color: green; color: white; }
+    .mass { background-color: cyan; color: #222; }
+    .vortexp { background-color: orange; color: #222; }
+    .vortexn { background-color: purple; color: white; }
+    .kst { background-color: lime; color: #222; }
+    .tsi { background-color: orange; color: #222; }
+    .accdist { background-color: green; color: white; }
+    .chaikin { background-color: blue; color: white; }
+    .mfi { background-color: magenta; color: white; }
+    .obv { background-color: yellow; color: #222; }
+    .force { background-color: red; color: white; }
+    .eom { background-color: cyan; color: #222; }
+    .cci { background-color: orange; color: #222; }
+    .copp { background-color: purple; color: white; }
+    .ultosc { background-color: lime; color: #222; }
     </style>
 </head>
 <body>    
@@ -99,6 +139,36 @@
                     <option value="candles" {% if view == "candles" %}selected{% endif %}>Candles</option>
                     <option value="ma_rsi" {% if view == "ma_rsi" %}selected{% endif %}>MA + RSI</option>
                     <option value="lr_ma" {% if view == "lr_ma" %}selected{% endif %}>Linear Regression</option>
+                    <option value="MA" {% if view == "MA" %}selected{% endif %}>Moving Average</option>
+                    <option value="EMA" {% if view == "EMA" %}selected{% endif %}>Exponential Moving Average</option>
+                    <option value="MOM" {% if view == "MOM" %}selected{% endif %}>Momentum</option>
+                    <option value="ROC" {% if view == "ROC" %}selected{% endif %}>Rate of Change</option>
+                    <option value="TRIX" {% if view == "TRIX" %}selected{% endif %}>Trix</option>
+                    <option value="ATR" {% if view == "ATR" %}selected{% endif %}>Average True Range</option>
+                    <option value="BBANDS" {% if view == "BBANDS" %}selected{% endif %}>Bollinger Bands</option>
+                    <option value="KELCH" {% if view == "KELCH" %}selected{% endif %}>Keltner Channel</option>
+                    <option value="DONCH" {% if view == "DONCH" %}selected{% endif %}>Donchian Channel</option>
+                    <option value="STDDEV" {% if view == "STDDEV" %}selected{% endif %}>Standard Deviation</option>
+                    <option value="PPSR" {% if view == "PPSR" %}selected{% endif %}>Pivot Points</option>
+                    <option value="STOK" {% if view == "STOK" %}selected{% endif %}>Fast Stochastic %K</option>
+                    <option value="STO_EMA" {% if view == "STO_EMA" %}selected{% endif %}>Stochastic Oscillator EMA</option>
+                    <option value="STO_SMA" {% if view == "STO_SMA" %}selected{% endif %}>Stochastic Oscillator SMA</option>
+                    <option value="ADX" {% if view == "ADX" %}selected{% endif %}>Average Directional Movement Index</option>
+                    <option value="MACD" {% if view == "MACD" %}selected{% endif %}>MACD</option>
+                    <option value="MassI" {% if view == "MassI" %}selected{% endif %}>Mass Index</option>
+                    <option value="Vortex" {% if view == "Vortex" %}selected{% endif %}>Vortex Indicator</option>
+                    <option value="KST" {% if view == "KST" %}selected{% endif %}>KST Oscillator</option>
+                    <option value="RSI" {% if view == "RSI" %}selected{% endif %}>Relative Strength Index</option>
+                    <option value="TSI" {% if view == "TSI" %}selected{% endif %}>True Strength Index</option>
+                    <option value="ACCDIST" {% if view == "ACCDIST" %}selected{% endif %}>Accumulation/Distribution</option>
+                    <option value="Chaikin" {% if view == "Chaikin" %}selected{% endif %}>Chaikin Oscillator</option>
+                    <option value="MFI" {% if view == "MFI" %}selected{% endif %}>Money Flow Index</option>
+                    <option value="OBV" {% if view == "OBV" %}selected{% endif %}>On-balance Volume</option>
+                    <option value="FORCE" {% if view == "FORCE" %}selected{% endif %}>Force Index</option>
+                    <option value="EOM" {% if view == "EOM" %}selected{% endif %}>Ease of Movement</option>
+                    <option value="CCI" {% if view == "CCI" %}selected{% endif %}>Commodity Channel Index</option>
+                    <option value="COPP" {% if view == "COPP" %}selected{% endif %}>Coppock Curve</option>
+                    <option value="ULTOSC" {% if view == "ULTOSC" %}selected{% endif %}>Ultimate Oscillator</option>
                 </select>
             </label>
             <button type="button" onclick="updateChart()">Update Chart</button>
@@ -108,18 +178,86 @@
     <div class="chart-container">
         <!-- Chart information indicators - Only add plot indicators -->
         <div class="chart-info">
-            <!-- Add plot indicators -->
             {% if view == "ma_rsi" %}
                 <span class="indicator ma3">MA 3</span>
                 <span class="indicator ma6">MA 6</span>
                 <span class="indicator ma9">MA 9</span>
                 <span class="indicator rsi">RSI</span>
-            {% endif %}
-            
-            {% if view == "lr_ma" %}
+            {% elif view == "lr_ma" %}
                 <span class="indicator ma3">MA 3</span>
                 <span class="indicator ma9">MA 9</span>
                 <span class="indicator lr">LR Pred</span>
+            {% elif view == "MA" %}
+                <span class="indicator ma14">MA 14</span>
+            {% elif view == "EMA" %}
+                <span class="indicator ema14">EMA 14</span>
+            {% elif view == "MOM" %}
+                <span class="indicator mom">Momentum</span>
+            {% elif view == "ROC" %}
+                <span class="indicator roc">Rate of Change</span>
+            {% elif view == "TRIX" %}
+                <span class="indicator trix">Trix</span>
+            {% elif view == "ATR" %}
+                <span class="indicator atr">ATR</span>
+            {% elif view == "BBANDS" %}
+                <span class="indicator bbupper">BB Upper</span>
+                <span class="indicator bbmiddle">BB Middle</span>
+                <span class="indicator bblower">BB Lower</span>
+            {% elif view == "KELCH" %}
+                <span class="indicator kelupper">Keltner Upper</span>
+                <span class="indicator kelmiddle">Keltner Middle</span>
+                <span class="indicator kellower">Keltner Lower</span>
+            {% elif view == "DONCH" %}
+                <span class="indicator donch">Donchian Channel</span>
+            {% elif view == "STDDEV" %}
+                <span class="indicator stddev">Std Dev</span>
+            {% elif view == "PPSR" %}
+                <span class="indicator pivot">Pivot</span>
+                <span class="indicator r1">R1</span>
+                <span class="indicator s1">S1</span>
+            {% elif view == "STOK" %}
+                <span class="indicator stok">Stochastic %K</span>
+            {% elif view == "STO_EMA" %}
+                <span class="indicator stema">Stoch %K EMA</span>
+                <span class="indicator sdema">Stoch %D EMA</span>
+            {% elif view == "STO_SMA" %}
+                <span class="indicator stsma">Stoch %K SMA</span>
+                <span class="indicator sdsma">Stoch %D SMA</span>
+            {% elif view == "ADX" %}
+                <span class="indicator adx">ADX</span>
+            {% elif view == "MACD" %}
+                <span class="indicator macd">MACD</span>
+                <span class="indicator macdsignal">Signal</span>
+                <span class="indicator macdhist">Histogram</span>
+            {% elif view == "MassI" %}
+                <span class="indicator mass">Mass Index</span>
+            {% elif view == "Vortex" %}
+                <span class="indicator vortexp">Vortex+</span>
+                <span class="indicator vortexn">Vortex-</span>
+            {% elif view == "KST" %}
+                <span class="indicator kst">KST Oscillator</span>
+            {% elif view == "RSI" %}
+                <span class="indicator rsi">RSI</span>
+            {% elif view == "TSI" %}
+                <span class="indicator tsi">TSI</span>
+            {% elif view == "ACCDIST" %}
+                <span class="indicator accdist">Accum/Dist</span>
+            {% elif view == "Chaikin" %}
+                <span class="indicator chaikin">Chaikin Osc</span>
+            {% elif view == "MFI" %}
+                <span class="indicator mfi">MFI</span>
+            {% elif view == "OBV" %}
+                <span class="indicator obv">OBV</span>
+            {% elif view == "FORCE" %}
+                <span class="indicator force">Force Index</span>
+            {% elif view == "EOM" %}
+                <span class="indicator eom">Ease of Movement</span>
+            {% elif view == "CCI" %}
+                <span class="indicator cci">CCI</span>
+            {% elif view == "COPP" %}
+                <span class="indicator copp">Coppock Curve</span>
+            {% elif view == "ULTOSC" %}
+                <span class="indicator ultosc">Ultimate Oscillator</span>
             {% endif %}
         </div>
         
@@ -158,6 +296,77 @@
                     chartInfo.innerHTML += '<span class="indicator ma3">MA 3</span>';
                     chartInfo.innerHTML += '<span class="indicator ma9">MA 9</span>';
                     chartInfo.innerHTML += '<span class="indicator lr">LR Pred</span>';
+                } else if (view === 'MA') {
+                    chartInfo.innerHTML += '<span class="indicator ma14">MA 14</span>';
+                } else if (view === 'EMA') {
+                    chartInfo.innerHTML += '<span class="indicator ema14">EMA 14</span>';
+                } else if (view === 'MOM') {
+                    chartInfo.innerHTML += '<span class="indicator mom">Momentum</span>';
+                } else if (view === 'ROC') {
+                    chartInfo.innerHTML += '<span class="indicator roc">Rate of Change</span>';
+                } else if (view === 'TRIX') {
+                    chartInfo.innerHTML += '<span class="indicator trix">Trix</span>';
+                } else if (view === 'ATR') {
+                    chartInfo.innerHTML += '<span class="indicator atr">ATR</span>';
+                } else if (view === 'BBANDS') {
+                    chartInfo.innerHTML += '<span class="indicator bbupper">BB Upper</span>';
+                    chartInfo.innerHTML += '<span class="indicator bbmiddle">BB Middle</span>';
+                    chartInfo.innerHTML += '<span class="indicator bblower">BB Lower</span>';
+                } else if (view === 'KELCH') {
+                    chartInfo.innerHTML += '<span class="indicator kelupper">Keltner Upper</span>';
+                    chartInfo.innerHTML += '<span class="indicator kelmiddle">Keltner Middle</span>';
+                    chartInfo.innerHTML += '<span class="indicator kellower">Keltner Lower</span>';
+                } else if (view === 'DONCH') {
+                    chartInfo.innerHTML += '<span class="indicator donch">Donchian Channel</span>';
+                } else if (view === 'STDDEV') {
+                    chartInfo.innerHTML += '<span class="indicator stddev">Std Dev</span>';
+                } else if (view === 'PPSR') {
+                    chartInfo.innerHTML += '<span class="indicator pivot">Pivot</span>';
+                    chartInfo.innerHTML += '<span class="indicator r1">R1</span>';
+                    chartInfo.innerHTML += '<span class="indicator s1">S1</span>';
+                } else if (view === 'STOK') {
+                    chartInfo.innerHTML += '<span class="indicator stok">Stochastic %K</span>';
+                } else if (view === 'STO_EMA') {
+                    chartInfo.innerHTML += '<span class="indicator stema">Stoch %K EMA</span>';
+                    chartInfo.innerHTML += '<span class="indicator sdema">Stoch %D EMA</span>';
+                } else if (view === 'STO_SMA') {
+                    chartInfo.innerHTML += '<span class="indicator stsma">Stoch %K SMA</span>';
+                    chartInfo.innerHTML += '<span class="indicator sdsma">Stoch %D SMA</span>';
+                } else if (view === 'ADX') {
+                    chartInfo.innerHTML += '<span class="indicator adx">ADX</span>';
+                } else if (view === 'MACD') {
+                    chartInfo.innerHTML += '<span class="indicator macd">MACD</span>';
+                    chartInfo.innerHTML += '<span class="indicator macdsignal">Signal</span>';
+                    chartInfo.innerHTML += '<span class="indicator macdhist">Histogram</span>';
+                } else if (view === 'MassI') {
+                    chartInfo.innerHTML += '<span class="indicator mass">Mass Index</span>';
+                } else if (view === 'Vortex') {
+                    chartInfo.innerHTML += '<span class="indicator vortexp">Vortex+</span>';
+                    chartInfo.innerHTML += '<span class="indicator vortexn">Vortex-</span>';
+                } else if (view === 'KST') {
+                    chartInfo.innerHTML += '<span class="indicator kst">KST Oscillator</span>';
+                } else if (view === 'RSI') {
+                    chartInfo.innerHTML += '<span class="indicator rsi">RSI</span>';
+                } else if (view === 'TSI') {
+                    chartInfo.innerHTML += '<span class="indicator tsi">TSI</span>';
+                } else if (view === 'ACCDIST') {
+                    chartInfo.innerHTML += '<span class="indicator accdist">Accum/Dist</span>';
+                } else if (view === 'Chaikin') {
+                    chartInfo.innerHTML += '<span class="indicator chaikin">Chaikin Osc</span>';
+                } else if (view === 'MFI') {
+                    chartInfo.innerHTML += '<span class="indicator mfi">MFI</span>';
+                } else if (view === 'OBV') {
+                    chartInfo.innerHTML += '<span class="indicator obv">OBV</span>';
+                } else if (view === 'FORCE') {
+                    chartInfo.innerHTML += '<span class="indicator force">Force Index</span>';
+                } else if (view === 'EOM') {
+                    chartInfo.innerHTML += '<span class="indicator eom">Ease of Movement</span>';
+                } else if (view === 'CCI') {
+                    chartInfo.innerHTML += '<span class="indicator cci">CCI</span>';
+                } else if (view === 'COPP') {
+                    chartInfo.innerHTML += '<span class="indicator copp">Coppock Curve</span>';
+                } else if (view === 'ULTOSC') {
+                    chartInfo.innerHTML += '<span class="indicator ultosc">Ultimate Oscillator</span>';
                 }
                 
                 // Update URL without reloading the page
