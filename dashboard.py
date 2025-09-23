@@ -12,6 +12,7 @@ from sklearn.linear_model import LinearRegression
 import numpy as np
 import os, base64
 import warnings 
+import uvicorn
 matplotlib.use('Agg')
 warnings.simplefilter('ignore')
 
@@ -356,7 +357,6 @@ def home():
     </html>
     """
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 # If you run this file with: uvicorn dashboard:app --reload
 # Visit http://127.0.0.1:8000/ to use the interface.
