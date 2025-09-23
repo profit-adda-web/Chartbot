@@ -329,7 +329,7 @@ def home():
         </head>
         <body style='font-family: Arial; background: #181c20; color: #eee;'>
             <div style='max-width:900px; margin:40px auto; background:#23272b; border-radius:16px; box-shadow:0 2px 16px #0006; padding:32px;'>
-                <h2 style='text-align:center; color:#7fffd4;'>Chartbot — Indicator Charts</h2>
+                <h2 style='text-align:center; color:#7fffd4;'>Chartbot — One Click Links</h2>
                 <table style='width:100%; border-collapse:collapse; margin-bottom:18px;'>
                     <tr style='background:#222;'><th style='padding:10px; text-align:left;'>Field</th><th style='padding:10px; text-align:left;'>Value / Options</th></tr>
                     <tr><td style='padding:8px;'>Symbol</td><td style='padding:8px;'><input id='symbol' value='BTCUSD'/></td></tr>
