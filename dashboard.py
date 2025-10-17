@@ -18,14 +18,10 @@ warnings.simplefilter('ignore')
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+title_params={'symbol':'symbol', 'interval':'interval'}
 
-def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
-    """Create an mplfinance PNG in-memory and return BytesIO.
-    view options:
-      - candles           : plain candlestick with volume
-      - ma_rsi            : candlestick + MA(3,6,9) and RSI in separate panel
-      - lr_ma             : candlestick + MA features and linear-regression predicted close line
-    """
+def create_chart_image(df: pd.DataFrame, view: str = "Volume") -> io.BytesIO:
+    """Create an mplfinance PNG in-memory and return BytesIO."""
     # Ensure time index
     if "time" in df.columns:
         df["time"] = pd.to_datetime(df["time"]) 
@@ -39,7 +35,7 @@ def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
 
     add_plots = []
     # Plot logic for each indicator
-    if view == "candles":
+    if view == "Volume":
         add_plots = []
     elif view == "ma_rsi":
         add_plots = [
@@ -48,7 +44,7 @@ def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
             mpf.make_addplot(df['MA_9'],color='blue',label='MA 9'),
             mpf.make_addplot(df['RSI'], panel=2, width=2.0,color='purple', ylabel="RSI")
         ]
-    elif view == "lr_ma":
+    elif view == "linear_regression_moving_average":
         feat_cols = ['MA_3', 'MA_9']
         trnd_df = df.dropna(subset=feat_cols + ['close']).copy()
         if len(trnd_df) >= 10:
@@ -71,24 +67,15 @@ def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
                 mpf.make_addplot(df['MA_6'],color='green'),
                 mpf.make_addplot(df['MA_9'],color='blue')
             ]
-    elif view == "MA":
-        df['MA_14'] = indi.MA(df, 14)
-        add_plots = [mpf.make_addplot(df['MA_14'], color='orange', width=2.0, label='MA 14')]
-    elif view == "EMA":
-        df['EMA_14'] = indi.EMA(df, 14)
-        add_plots = [mpf.make_addplot(df['EMA_14'], color='cyan', width=2.0, label='EMA 14')]
-    elif view == "MOM":
-        df['MOM_10'] = indi.MOM(df, 10)
-        add_plots = [mpf.make_addplot(df['MOM_10'], color='magenta', width=2.0, panel=2, label='Momentum')]
-    elif view == "ROC":
-        df['ROC_10'] = indi.ROC(df, 10)
-        add_plots = [mpf.make_addplot(df['ROC_10'], color='yellow', width=2.0, panel=2, label='Rate of Change')]
-    elif view == "TRIX":
-        df['TRIX_15'] = indi.TRIX(df, 15)
-        add_plots = [mpf.make_addplot(df['TRIX_15'], color='lime', width=2.0, panel=2, label='Trix')]
+    elif view == "ACCDIST":
+        df['ACCDIST'] = indi.ACCDIST(df)
+        add_plots = [mpf.make_addplot(df['ACCDIST'], color='green', width=2.0, panel=2, ylabel='Accum/Dist')]
+    elif view == "ADX":
+        df['ADX'] = df['close'].pct_change().rolling(window=14).std().fillna(0) * 100
+        add_plots = [mpf.make_addplot(df['ADX'], color='yellow', width=2.0, panel=2, ylabel='ADX')]
     elif view == "ATR":
         df['ATR_14'] = indi.ATR(df, 14)
-        add_plots = [mpf.make_addplot(df['ATR_14'], color='red', width=2.0, panel=2, label='ATR')]
+        add_plots = [mpf.make_addplot(df['ATR_14'], color='red', width=2.0, panel=2, ylabel='ATR')]
     elif view == "BBANDS":
         bands = indi.BBANDS(df, 20)
         add_plots = [
@@ -96,6 +83,27 @@ def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
             mpf.make_addplot(bands['middle'], color='white', width=1.5, label='BB Middle'),
             mpf.make_addplot(bands['lower'], color='orange', width=1.5, label='BB Lower')
         ]
+    elif view == "CCI":
+        df['CCI'] = indi.CCI(df, 20)
+        add_plots = [mpf.make_addplot(df['CCI'], color='orange', width=2.0, panel=2, ylabel='CCI')]
+    elif view == "Chaikin":
+        df['Chaikin'] = indi.Chaikin(df)
+        add_plots = [mpf.make_addplot(df['Chaikin'], color='blue', width=2.0, panel=2, ylabel='Chaikin Osc')]
+    elif view == "COPP":
+        df['COPP'] = indi.COPP(df, 14)
+        add_plots = [mpf.make_addplot(df['COPP'], color='purple', width=2.0, panel=2, ylabel='Coppock Curve')]
+    elif view == "DONCH":
+        df['DONCH_20'] = indi.DONCH(df, 20)
+        add_plots = [mpf.make_addplot(df['DONCH_20'], color='blue', width=2.0, panel=2, ylabel='Donchian Channel')]
+    elif view == "EMA":
+        df['EMA_14'] = indi.EMA(df, 14)
+        add_plots = [mpf.make_addplot(df['EMA_14'], color='cyan', width=2.0, label='EMA 14')]
+    elif view == "EOM":
+        df['EOM'] = indi.EOM(df)
+        add_plots = [mpf.make_addplot(df['EOM'], color='cyan', width=2.0, panel=2, ylabel='Ease of Movement')]
+    elif view == "FORCE":
+        df['FORCE'] = indi.FORCE(df)
+        add_plots = [mpf.make_addplot(df['FORCE'], color='red', width=2.0, panel=2, ylabel='Force Index')]
     elif view == "KELCH":
         kelch = indi.KELCH(df, 20)
         add_plots = [
@@ -103,12 +111,31 @@ def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
             mpf.make_addplot(kelch['middle'], color='white', width=1.5, label='Keltner Middle'),
             mpf.make_addplot(kelch['lower'], color='green', width=1.5, label='Keltner Lower')
         ]
-    elif view == "DONCH":
-        df['DONCH_20'] = indi.DONCH(df, 20)
-        add_plots = [mpf.make_addplot(df['DONCH_20'], color='blue', width=2.0, panel=2, label='Donchian Channel')]
-    elif view == "STDDEV":
-        df['STDDEV_20'] = indi.STDDEV(df, 20)
-        add_plots = [mpf.make_addplot(df['STDDEV_20'], color='purple', width=2.0, panel=2, label='Std Dev')]
+    elif view == "KST":
+        df['KST'] = indi.KST(df, 10, 15, 20, 30, 10, 10, 10, 15)
+        add_plots = [mpf.make_addplot(df['KST'], color='lime', width=2.0, panel=2, ylabel='KST Oscillator')]
+    elif view == "MACD":
+        macd = indi.MACD(df)
+        add_plots = [
+            mpf.make_addplot(macd.iloc[:,0], color='orange', width=2.0, panel=2, ylabel='MACD'),
+            mpf.make_addplot(macd.iloc[:,1], color='purple', width=2.0, panel=2, label='Signal'),
+            mpf.make_addplot(macd.iloc[:,2], color='green', width=2.0, panel=2, label='Histogram')
+        ]
+    elif view == "MA":
+        df['MA_14'] = indi.MA(df, 14)
+        add_plots = [mpf.make_addplot(df['MA_14'], color='orange', width=2.0, label='MA 14')]
+    elif view == "MassI":
+        df['MassI'] = indi.MassI(df)
+        add_plots = [mpf.make_addplot(df['MassI'], color='cyan', width=2.0, panel=2, ylabel='Mass Index')]
+    elif view == "MFI":
+        df['MFI'] = indi.MFI(df, 14)
+        add_plots = [mpf.make_addplot(df['MFI'], color='magenta', width=2.0, panel=2, ylabel='MFI')]
+    elif view == "MOM":
+        df['MOM_10'] = indi.MOM(df, 10)
+        add_plots = [mpf.make_addplot(df['MOM_10'], color='magenta', width=2.0, panel=2, ylabel='Momentum')]
+    elif view == "OBV":
+        df['OBV'] = indi.OBV(df)
+        add_plots = [mpf.make_addplot(df['OBV'], color='yellow', width=2.0, panel=2, ylabel='OBV')]
     elif view == "PPSR":
         ppsr = indi.PPSR(df)
         add_plots = [
@@ -116,76 +143,45 @@ def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
             mpf.make_addplot(ppsr['R1'], color='green', width=1.0, label='R1'),
             mpf.make_addplot(ppsr['S1'], color='red', width=1.0, label='S1')
         ]
+    elif view == "ROC":
+        df['ROC_10'] = indi.ROC(df, 10)
+        add_plots = [mpf.make_addplot(df['ROC_10'], color='yellow', width=2.0, panel=2, ylabel='Rate of Change')]
+    elif view == "RSI":
+        df['RSI_14'] = indi.RSI(df, 14)
+        add_plots = [mpf.make_addplot(df['RSI_14'], color='purple', width=2.0, panel=2, ylabel='RSI')]
+    elif view == "STDDEV":
+        df['STDDEV_20'] = indi.STDDEV(df, 20)
+        add_plots = [mpf.make_addplot(df['STDDEV_20'], color='purple', width=2.0, panel=2, ylabel='Std Dev')]
     elif view == "STOK":
         df['STOK'] = indi.STOK(df)
-        add_plots = [mpf.make_addplot(df['STOK'], color='orange', width=2.0, panel=2, label='Stochastic %K')]
+        add_plots = [mpf.make_addplot(df['STOK'], color='orange', width=2.0, panel=2, ylabel='Stochastic %K')]
     elif view == "STO_EMA":
         sto_ema = indi.STO_EMA(df)
         add_plots = [
-            mpf.make_addplot(sto_ema.iloc[:,0], color='orange', width=2.0, panel=2, label='Stoch %K EMA'),
+            mpf.make_addplot(sto_ema.iloc[:,0], color='orange', width=2.0, panel=2, ylabel='Stoch EMA'),
             mpf.make_addplot(sto_ema.iloc[:,1], color='purple', width=2.0, panel=2, label='Stoch %D EMA')
         ]
     elif view == "STO_SMA":
         sto_sma = indi.STO_SMA(df)
         add_plots = [
-            mpf.make_addplot(sto_sma.iloc[:,0], color='orange', width=2.0, panel=2, label='Stoch %K SMA'),
+            mpf.make_addplot(sto_sma.iloc[:,0], color='orange', width=2.0, panel=2, ylabel='Stoch SMA'),
             mpf.make_addplot(sto_sma.iloc[:,1], color='purple', width=2.0, panel=2, label='Stoch %D SMA')
         ]
-    elif view == "ADX":
-        df['ADX'] = indi.ADX(df)
-        add_plots = [mpf.make_addplot(df['ADX'], color='yellow', width=2.0, panel=2, label='ADX')]
-    elif view == "MACD":
-        macd = indi.MACD(df)
-        add_plots = [
-            mpf.make_addplot(macd.iloc[:,0], color='orange', width=2.0, panel=2, label='MACD'),
-            mpf.make_addplot(macd.iloc[:,1], color='purple', width=2.0, panel=2, label='Signal'),
-            mpf.make_addplot(macd.iloc[:,2], color='green', width=2.0, panel=2, label='Histogram')
-        ]
-    elif view == "MassI":
-        df['MassI'] = indi.MassI(df)
-        add_plots = [mpf.make_addplot(df['MassI'], color='cyan', width=2.0, panel=2, label='Mass Index')]
+    elif view == "TSI":
+        df['TSI'] = indi.TSI(df)
+        add_plots = [mpf.make_addplot(df['TSI'], color='orange', width=2.0, panel=2, ylabel='TSI')]
+    elif view == "TRIX":
+        df['TRIX_15'] = indi.TRIX(df, 15)
+        add_plots = [mpf.make_addplot(df['TRIX_15'], color='lime', width=2.0, panel=2, ylabel='Trix')]
+    elif view == "ULTOSC":
+        df['ULTOSC'] = indi.ULTOSC(df)
+        add_plots = [mpf.make_addplot(df['ULTOSC'], color='lime', width=2.0, panel=2, ylabel='Ultimate Oscillator')]
     elif view == "Vortex":
         vortex = indi.Vortex(df)
         add_plots = [
-            mpf.make_addplot(vortex.iloc[:,0], color='orange', width=2.0, panel=2, label='Vortex+'),
+            mpf.make_addplot(vortex.iloc[:,0], color='orange', width=2.0, panel=2, ylabel='Vortex'),
             mpf.make_addplot(vortex.iloc[:,1], color='purple', width=2.0, panel=2, label='Vortex-')
         ]
-    elif view == "KST":
-        df['KST'] = indi.KST(df, 10, 15, 20, 30, 10, 10, 10, 15)
-        add_plots = [mpf.make_addplot(df['KST'], color='lime', width=2.0, panel=2, label='KST Oscillator')]
-    elif view == "RSI":
-        df['RSI_14'] = indi.RSI(df, 14)
-        add_plots = [mpf.make_addplot(df['RSI_14'], color='purple', width=2.0, panel=2, label='RSI')]
-    elif view == "TSI":
-        df['TSI'] = indi.TSI(df)
-        add_plots = [mpf.make_addplot(df['TSI'], color='orange', width=2.0, panel=2, label='TSI')]
-    elif view == "ACCDIST":
-        df['ACCDIST'] = indi.ACCDIST(df)
-        add_plots = [mpf.make_addplot(df['ACCDIST'], color='green', width=2.0, panel=2, label='Accum/Dist')]
-    elif view == "Chaikin":
-        df['Chaikin'] = indi.Chaikin(df)
-        add_plots = [mpf.make_addplot(df['Chaikin'], color='blue', width=2.0, panel=2, label='Chaikin Osc')]
-    elif view == "MFI":
-        df['MFI'] = indi.MFI(df, 14)
-        add_plots = [mpf.make_addplot(df['MFI'], color='magenta', width=2.0, panel=2, label='MFI')]
-    elif view == "OBV":
-        df['OBV'] = indi.OBV(df)
-        add_plots = [mpf.make_addplot(df['OBV'], color='yellow', width=2.0, panel=2, label='OBV')]
-    elif view == "FORCE":
-        df['FORCE'] = indi.FORCE(df)
-        add_plots = [mpf.make_addplot(df['FORCE'], color='red', width=2.0, panel=2, label='Force Index')]
-    elif view == "EOM":
-        df['EOM'] = indi.EOM(df)
-        add_plots = [mpf.make_addplot(df['EOM'], color='cyan', width=2.0, panel=2, label='Ease of Movement')]
-    elif view == "CCI":
-        df['CCI'] = indi.CCI(df, 20)
-        add_plots = [mpf.make_addplot(df['CCI'], color='orange', width=2.0, panel=2, label='CCI')]
-    elif view == "COPP":
-        df['COPP'] = indi.COPP(df, 14)
-        add_plots = [mpf.make_addplot(df['COPP'], color='purple', width=2.0, panel=2, label='Coppock Curve')]
-    elif view == "ULTOSC":
-        df['ULTOSC'] = indi.ULTOSC(df)
-        add_plots = [mpf.make_addplot(df['ULTOSC'], color='lime', width=2.0, panel=2, label='Ultimate Oscillator')]
     # fallback: no extra plots
 
     # style
@@ -196,11 +192,12 @@ def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
         edgecolor="black",
         gridcolor="white",
         rc={
-            "axes.labelcolor": "darkorange",
-            "xtick.color": "darkorange",
-            "ytick.color": "darkorange",
+            "axes.labelcolor": "white",
+            "xtick.color": "white",
+            "ytick.color": "white",
             "xtick.labelsize": 12,
             "ytick.labelsize": 12,
+            "text.color": "white",  # Add this for title color
         }
     )
 
@@ -216,7 +213,7 @@ def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
         style=style,
         volume=True,
         figsize=(19.2, 10.8),
-        title="Candlestick Chart",
+        title=f"{title_params['symbol']} {title_params['interval']} Candlestick Chart + {view}",
         savefig=dict(fname=buf, format="png"),
         **kwargs
     )
@@ -232,9 +229,10 @@ def chart_endpoint(
     days: int = Query(1),
     view: str = Query("candles")
 ):
-
     csv_path, dframe = marketfeed.delta_fetch_data(symbol=symbol, interval=interval, days=days)
+    title_params.update({'symbol':symbol, 'interval':interval})
     df = pd.read_csv(csv_path)
+    
     # Keep a copy of original index column if present
     if 'time' in df.columns:
         df['time'] = pd.to_datetime(df['time'])
@@ -242,32 +240,8 @@ def chart_endpoint(
 
     buf = create_chart_image(df, view=view)
     
-    # Return HTML page with the chart image and controls
-    return templates.TemplateResponse("chart.html", {
-        "request": request,
-        "symbol": symbol,
-        "interval": interval,
-        "days": days,
-        "view": view,
-        "chart_image": f"data:image/png;base64,{base64.b64encode(buf.getvalue()).decode()}"
-    })
-
-
-@app.post("/update_chart")
-async def update_chart(
-    symbol: str = Form("BTCUSD"),
-    interval: str = Form("15m"),
-    days: int = Form(1),
-    view: str = Form("candles")
-):
-    """Endpoint to update chart with new parameters"""
-    csv_path, dframe = marketfeed.delta_fetch_data(symbol=symbol, interval=interval, days=days)
-    df = pd.read_csv(csv_path)
-    if 'time' in df.columns:
-        df['time'] = pd.to_datetime(df['time'])
-
-    buf = create_chart_image(df, view=view)
-    return {"image": f"data:image/png;base64,{base64.b64encode(buf.getvalue()).decode()}"}
+    # Return direct image response
+    return StreamingResponse(buf, media_type="image/png")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -275,39 +249,40 @@ def home():
     # Define indicators by category
     categories = {
         "Technical Indicators": [
-            ("MA", "Moving Average", "Simple moving average of close price"),
-            ("EMA", "Exponential Moving Average", "Exponentially weighted moving average of close price"),
-            ("MOM", "Momentum", "Difference in close price over n periods"),
-            ("ROC", "Rate of Change", "Percentage change in close price over n periods"),
-            ("TRIX", "Trix", "Triple-smoothed exponential moving average"),
-            ("ATR", "Average True Range", "Volatility indicator based on true range"),
-            ("BBANDS", "Bollinger Bands", "Upper, middle, and lower bands around moving average"),
-            ("KELCH", "Keltner Channel", "Volatility-based envelope set above and below EMA"),
-            ("DONCH", "Donchian Channel", "Difference between highest high and lowest low over n periods"),
-            ("STDDEV", "Standard Deviation", "Standard deviation of close price over n periods"),
-            ("PPSR", "Pivot Points", "Pivot points, supports, and resistances"),
-            ("STOK", "Fast Stochastic %K", "Fast stochastic oscillator %K"),
-            ("STO_EMA", "Stochastic Oscillator EMA", "Stochastic oscillator with EMA smoothing"),
-            ("STO_SMA", "Stochastic Oscillator SMA", "Stochastic oscillator with SMA smoothing"),
-            ("ADX", "Average Directional Movement Index", "Trend strength indicator"),
-            ("MACD", "MACD", "Moving Average Convergence Divergence"),
-            ("MassI", "Mass Index", "Detects trend reversals by measuring range expansions"),
-            ("Vortex", "Vortex Indicator", "Identifies trend reversals and confirmations"),
-            ("KST", "KST Oscillator", "Know Sure Thing momentum oscillator"),
-            ("RSI", "Relative Strength Index", "Momentum oscillator measuring speed and change of price movements"),
-            ("TSI", "True Strength Index", "Momentum oscillator"),
-            ("ACCDIST", "Accumulation/Distribution", "Volume-based indicator"),
-            ("Chaikin", "Chaikin Oscillator", "Volume-based indicator"),
-            ("MFI", "Money Flow Index", "Volume-weighted RSI"),
-            ("OBV", "On-balance Volume", "Cumulative volume indicator"),
-            ("FORCE", "Force Index", "Combines price and volume to identify strength"),
-            ("EOM", "Ease of Movement", "Volume-based oscillator"),
-            ("CCI", "Commodity Channel Index", "Deviation from average price"),
-            ("COPP", "Coppock Curve", "Long-term momentum indicator"),
-            ("ULTOSC", "Ultimate Oscillator", "Combines short, intermediate, and long-term price action"),
+        ("Volume", "Candlestick Chart", "Candlestick with Volume"),
+        ("ACCDIST", "Accumulation/Distribution", "Volume-based indicator"),
+        ("ADX", "Average Directional Movement Index", "Trend strength indicator"),
+        ("ATR", "Average True Range", "Volatility indicator based on true range"),
+        ("BBANDS", "Bollinger Bands", "Upper, middle, and lower bands around moving average"),
+        ("CCI", "Commodity Channel Index", "Deviation from average price"),
+        ("Chaikin", "Chaikin Oscillator", "Volume-based indicator"),
+        ("COPP", "Coppock Curve", "Long-term momentum indicator"),
+        ("DONCH", "Donchian Channel", "Difference between highest high and lowest low over n periods"),
+        ("EMA", "Exponential Moving Average", "Exponentially weighted moving average of close price"),
+        ("EOM", "Ease of Movement", "Volume-based oscillator"),
+        ("FORCE", "Force Index", "Combines price and volume to identify strength"),
+        ("KELCH", "Keltner Channel", "Volatility-based envelope set above and below EMA"),
+        ("KST", "KST Oscillator", "Know Sure Thing momentum oscillator"),
+        ("MACD", "MACD", "Moving Average Convergence Divergence"),
+        ("MA", "Moving Average", "Simple moving average of close price"),
+        ("MassI", "Mass Index", "Detects trend reversals by measuring range expansions"),
+        ("MFI", "Money Flow Index", "Volume-weighted RSI"),
+        ("MOM", "Momentum", "Difference in close price over n periods"),
+        ("OBV", "On-balance Volume", "Cumulative volume indicator"),
+        ("PPSR", "Pivot Points", "Pivot points, supports, and resistances"),
+        ("ROC", "Rate of Change", "Percentage change in close price over n periods"),
+        ("RSI", "Relative Strength Index", "Momentum oscillator measuring speed and change of price movements"),
+        ("STDDEV", "Standard Deviation", "Standard deviation of close price over n periods"),
+        ("STO_EMA", "Stochastic Oscillator EMA", "Stochastic oscillator with EMA smoothing"),
+        ("STO_SMA", "Stochastic Oscillator SMA", "Stochastic oscillator with SMA smoothing"),
+        ("STOK", "Fast Stochastic %K", "Fast stochastic oscillator %K"),
+        ("TRIX", "Trix", "Triple-smoothed exponential moving average"),
+        ("TSI", "True Strength Index", "Momentum oscillator"),
+        ("ULTOSC", "Ultimate Oscillator", "Combines short, intermediate, and long-term price action"),
+        ("Vortex", "Vortex Indicator", "Identifies trend reversals and confirmations"),
         ],
         "Machine Learning": [
-            ("lr_ma", "Linear Regression (MA features)", "Train LR on MA(3,9) Features and Overlay Predicted Close"),
+            ("linear_regression_moving_average", "Linear Regression (MA features)", "Train LR on MA(3,9) Features and Overlay Predicted Close"),
         ],
         "Crossover Signals": [
             ("ma_rsi", "MA + RSI", "MA(3,6,9) and RSI"),
@@ -338,11 +313,16 @@ def home():
         for value, label, desc in indicators:
             tab_content_html += f"""
             <tr>
-                <td style='padding:8px; width:30%;'>
-                    <input type='radio' name='view' value='{value}' {'checked' if value=='candles' and i==0 else ''}>
+                <td style='padding:8px; width:25%;'>
+                    <input type='radio' name='view' value='{value}' {'checked' if value=='Volume' and i==0 else ''}>
                     <b>{label}</b>
                 </td>
-                <td style='padding:8px;'>{desc}</td>
+                <td style='padding:8px; width:45%;'>{desc}</td>
+                <td style='padding:8px; width:30%; text-align:center;'>
+                    <button class='quick-chart-button' data-view='{value}' style='padding:6px 12px; background:#7fffd4; color:#23272b; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;'>
+                        Open/Update Chart in New Tab
+                    </button>
+                </td>
             </tr>
             """
         
@@ -390,12 +370,21 @@ def home():
                 table {{
                     border-radius: 8px;
                     overflow: hidden;
+                    width: 100%;
                 }}
                 th, td {{
                     border-bottom: 1px solid #333;
+                    padding: 8px;
                 }}
                 tr:hover {{
                     background-color: #2a2e32;
+                }}
+                .quick-chart-button {{
+                    transition: all 0.3s;
+                }}
+                .quick-chart-button:hover {{
+                    background: #5fd4b1 !important;
+                    transform: scale(1.05);
                 }}
                 .submit-container {{
                     text-align: center;
@@ -410,17 +399,22 @@ def home():
                     border-radius: 8px;
                     cursor: pointer;
                     font-weight: bold;
+                    transition: all 0.3s;
+                }}
+                .submit-button:hover {{
+                    background: #5fd4b1;
+                    transform: scale(1.05);
                 }}
             </style>
         </head>
         <body style='font-family: Arial; background: #181c20; color: #eee;'>
-            <div style='max-width:900px; margin:40px auto; background:#23272b; border-radius:16px; box-shadow:0 2px 16px #0006; padding:32px;'>
+            <div style='max-width:1200px; margin:40px auto; background:#23272b; border-radius:16px; box-shadow:0 2px 16px #0006; padding:32px;'>
                 <h2 style='text-align:center; color:#7fffd4;'>Chartbot — One Click Links</h2>
                 
                 <div style='background:#222; padding:15px; border-radius:8px; margin-bottom:20px;'>
                     <h3 style='color:#7fffd4; margin-top:0;'>Chart Parameters</h3>
                     <table style='width:100%; border-collapse:collapse;'>
-                        <tr><td style='padding:8px;'>Symbol</td><td style='padding:8px;'><input id='symbol' value='BTCUSD' style='width:100%; padding:5px; background:#333; color:white; border:1px solid #444; border-radius:4px;'/></td></tr>
+                        <tr><td style='padding:8px; width:20%;'>Symbol</td><td style='padding:8px;'><input id='symbol' value='BTCUSD' style='width:100%; padding:5px; background:#333; color:white; border:1px solid #444; border-radius:4px;'/></td></tr>
                         <tr><td style='padding:8px;'>Interval</td><td style='padding:8px;'><input id='interval' value='15m' style='width:100%; padding:5px; background:#333; color:white; border:1px solid #444; border-radius:4px;'/></td></tr>
                         <tr><td style='padding:8px;'>Days</td><td style='padding:8px;'><input id='days' type='number' value='1' min='1' style='width:100%; padding:5px; background:#333; color:white; border:1px solid #444; border-radius:4px;'/></td></tr>
                     </table>
@@ -436,7 +430,7 @@ def home():
                 </div>
                 
                 <div class="submit-container">
-                    <button id='openChart' class="submit-button">Open Chart in New Tab</button>
+                    <button id='openChart' class="submit-button">Open Selected Chart in New Tab</button>
                 </div>
             </div>
             <script>
@@ -458,13 +452,30 @@ def home():
                     evt.currentTarget.className += " active";
                 }}
 
-                document.getElementById('openChart').addEventListener('click', function(){{
+                // Function to open chart with given view
+                function openChartWithView(view) {{
                     const symbol = encodeURIComponent(document.getElementById('symbol').value || 'BTCUSD');
                     const interval = encodeURIComponent(document.getElementById('interval').value || '15m');
                     const days = encodeURIComponent(document.getElementById('days').value || '1');
-                    const view = document.querySelector('input[name="view"]:checked').value;
                     const url = `/chart?symbol=${{symbol}}&interval=${{interval}}&days=${{days}}&view=${{view}}`;
                     window.open(url, '_blank');
+                }}
+
+                // Add event listeners to all quick chart buttons
+                document.addEventListener('DOMContentLoaded', function() {{
+                    const quickButtons = document.getElementsByClassName('quick-chart-button');
+                    for (let i = 0; i < quickButtons.length; i++) {{
+                        quickButtons[i].addEventListener('click', function() {{
+                            const view = this.getAttribute('data-view');
+                            openChartWithView(view);
+                        }});
+                    }}
+                }});
+
+                // Main chart button
+                document.getElementById('openChart').addEventListener('click', function(){{
+                    const view = document.querySelector('input[name="view"]:checked').value;
+                    openChartWithView(view);
                 }});
             </script>
         </body>
