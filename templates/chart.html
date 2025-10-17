@@ -58,51 +58,51 @@
             font-weight: bold;
         }
         /* Add plot indicators */
-    .ma3 { background-color: darkorange; color: white; }
-    .ma6 { background-color: green; color: white; }
-    .ma9 { background-color: blue; color: white; }
-    .rsi { background-color: purple; color: white; }
-    .lr { background-color: magenta; color: white; }
-    .ma14 { background-color: orange; color: white; }
-    .ema14 { background-color: cyan; color: #222; }
-    .mom { background-color: magenta; color: white; }
-    .roc { background-color: yellow; color: #222; }
-    .trix { background-color: lime; color: #222; }
-    .atr { background-color: red; color: white; }
-    .bbupper { background-color: orange; color: #222; }
-    .bbmiddle { background-color: white; color: #222; }
-    .bblower { background-color: orange; color: #222; }
-    .kelupper { background-color: green; color: white; }
-    .kelmiddle { background-color: white; color: #222; }
-    .kellower { background-color: green; color: white; }
-    .donch { background-color: blue; color: white; }
-    .stddev { background-color: purple; color: white; }
-    .pivot { background-color: white; color: #222; }
-    .r1 { background-color: green; color: white; }
-    .s1 { background-color: red; color: white; }
-    .stok { background-color: orange; color: #222; }
-    .stema { background-color: orange; color: #222; }
-    .sdema { background-color: purple; color: white; }
-    .stsma { background-color: orange; color: #222; }
-    .sdsma { background-color: purple; color: white; }
-    .adx { background-color: yellow; color: #222; }
-    .macd { background-color: orange; color: #222; }
-    .macdsignal { background-color: purple; color: white; }
-    .macdhist { background-color: green; color: white; }
-    .mass { background-color: cyan; color: #222; }
-    .vortexp { background-color: orange; color: #222; }
-    .vortexn { background-color: purple; color: white; }
-    .kst { background-color: lime; color: #222; }
-    .tsi { background-color: orange; color: #222; }
-    .accdist { background-color: green; color: white; }
-    .chaikin { background-color: blue; color: white; }
-    .mfi { background-color: magenta; color: white; }
-    .obv { background-color: yellow; color: #222; }
-    .force { background-color: red; color: white; }
-    .eom { background-color: cyan; color: #222; }
-    .cci { background-color: orange; color: #222; }
-    .copp { background-color: purple; color: white; }
-    .ultosc { background-color: lime; color: #222; }
+        .ma3 { background-color: darkorange; color: white; }
+        .ma6 { background-color: green; color: white; }
+        .ma9 { background-color: blue; color: white; }
+        .rsi { background-color: purple; color: white; }
+        .lr { background-color: magenta; color: white; }
+        .ma14 { background-color: orange; color: white; }
+        .ema14 { background-color: cyan; color: #222; }
+        .mom { background-color: magenta; color: white; }
+        .roc { background-color: yellow; color: #222; }
+        .trix { background-color: lime; color: #222; }
+        .atr { background-color: red; color: white; }
+        .bbupper { background-color: orange; color: #222; }
+        .bbmiddle { background-color: white; color: #222; }
+        .bblower { background-color: orange; color: #222; }
+        .kelupper { background-color: green; color: white; }
+        .kelmiddle { background-color: white; color: #222; }
+        .kellower { background-color: green; color: white; }
+        .donch { background-color: blue; color: white; }
+        .stddev { background-color: purple; color: white; }
+        .pivot { background-color: white; color: #222; }
+        .r1 { background-color: green; color: white; }
+        .s1 { background-color: red; color: white; }
+        .stok { background-color: orange; color: #222; }
+        .stema { background-color: orange; color: #222; }
+        .sdema { background-color: purple; color: white; }
+        .stsma { background-color: orange; color: #222; }
+        .sdsma { background-color: purple; color: white; }
+        .adx { background-color: yellow; color: #222; }
+        .macd { background-color: orange; color: #222; }
+        .macdsignal { background-color: purple; color: white; }
+        .macdhist { background-color: green; color: white; }
+        .mass { background-color: cyan; color: #222; }
+        .vortexp { background-color: orange; color: #222; }
+        .vortexn { background-color: purple; color: white; }
+        .kst { background-color: lime; color: #222; }
+        .tsi { background-color: orange; color: #222; }
+        .accdist { background-color: green; color: white; }
+        .chaikin { background-color: blue; color: white; }
+        .mfi { background-color: magenta; color: white; }
+        .obv { background-color: yellow; color: #222; }
+        .force { background-color: red; color: white; }
+        .eom { background-color: cyan; color: #222; }
+        .cci { background-color: orange; color: #222; }
+        .copp { background-color: purple; color: white; }
+        .ultosc { background-color: lime; color: #222; }
     </style>
 </head>
 <body>    
@@ -136,9 +136,7 @@
             <label>
                 View:
                 <select name="view">
-                    <option value="candles" {% if view == "candles" %}selected{% endif %}>Candles</option>
-                    <option value="ma_rsi" {% if view == "ma_rsi" %}selected{% endif %}>MA + RSI</option>
-                    <option value="lr_ma" {% if view == "lr_ma" %}selected{% endif %}>Linear Regression</option>
+                    <!-- Technical Indicators -->
                     <option value="MA" {% if view == "MA" %}selected{% endif %}>Moving Average</option>
                     <option value="EMA" {% if view == "EMA" %}selected{% endif %}>Exponential Moving Average</option>
                     <option value="MOM" {% if view == "MOM" %}selected{% endif %}>Momentum</option>
@@ -169,6 +167,15 @@
                     <option value="CCI" {% if view == "CCI" %}selected{% endif %}>Commodity Channel Index</option>
                     <option value="COPP" {% if view == "COPP" %}selected{% endif %}>Coppock Curve</option>
                     <option value="ULTOSC" {% if view == "ULTOSC" %}selected{% endif %}>Ultimate Oscillator</option>
+                    
+                    <!-- Machine Learning -->
+                    <option value="lr_ma" {% if view == "lr_ma" %}selected{% endif %}>Linear Regression (MA features)</option>
+                    
+                    <!-- Crossover Signals -->
+                    <option value="ma_rsi" {% if view == "ma_rsi" %}selected{% endif %}>MA + RSI</option>
+                    
+                    <!-- Basic -->
+                    <option value="candles" {% if view == "candles" %}selected{% endif %}>Candles</option>
                 </select>
             </label>
             <button type="button" onclick="updateChart()">Update Chart</button>
@@ -176,7 +183,7 @@
     </div>
     
     <div class="chart-container">
-        <!-- Chart information indicators - Only add plot indicators -->
+        <!-- Chart information indicators -->
         <div class="chart-info">
             {% if view == "ma_rsi" %}
                 <span class="indicator ma3">MA 3</span>
