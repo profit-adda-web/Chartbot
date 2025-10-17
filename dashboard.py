@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Query, Request, Form
 from fastapi.responses import StreamingResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
 import io
 import pandas as pd
 import mplfinance as mpf
@@ -17,7 +16,6 @@ matplotlib.use('Agg')
 warnings.simplefilter('ignore')
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
 title_params={'symbol':'symbol', 'interval':'interval'}
 
 def create_chart_image(df: pd.DataFrame, view: str = "Volume") -> io.BytesIO:
