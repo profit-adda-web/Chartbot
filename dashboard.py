@@ -187,7 +187,6 @@ def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
         df['ULTOSC'] = indi.ULTOSC(df)
         add_plots = [mpf.make_addplot(df['ULTOSC'], color='lime', width=2.0, panel=2, label='Ultimate Oscillator')]
     # fallback: no extra plots
-    # ...existing code...
 
     # style
     style = mpf.make_mpf_style(
@@ -211,7 +210,6 @@ def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
     if len(add_plots) > 0:
         kwargs["addplot"] = add_plots  
 
-
     mpf.plot(
         df,
         type="candle",
@@ -220,7 +218,6 @@ def create_chart_image(df: pd.DataFrame, view: str = "candles") -> io.BytesIO:
         figsize=(19.2, 10.8),
         title="Candlestick Chart",
         savefig=dict(fname=buf, format="png"),
-        # xlim=(0, len(df) + 25),
         **kwargs
     )
     buf.seek(0)
@@ -275,75 +272,192 @@ async def update_chart(
 
 @app.get("/", response_class=HTMLResponse)
 def home():
-    indicators = [
-        ("candles", "Candlestick Chart", "Candlestick with Volume"),
-        ("ma_rsi", "MA + RSI", "MA(3,6,9) and RSI"),
-        ("lr_ma", "Linear Regression (MA features)", "Train LR on MA(3,9) Features and Overlay Predicted Close"),
-        ("MA", "Moving Average", "Simple moving average of close price"),
-        ("EMA", "Exponential Moving Average", "Exponentially weighted moving average of close price"),
-        ("MOM", "Momentum", "Difference in close price over n periods"),
-        ("ROC", "Rate of Change", "Percentage change in close price over n periods"),
-        ("TRIX", "Trix", "Triple-smoothed exponential moving average"),
-        ("ATR", "Average True Range", "Volatility indicator based on true range"),
-        ("BBANDS", "Bollinger Bands", "Upper, middle, and lower bands around moving average"),
-        ("KELCH", "Keltner Channel", "Volatility-based envelope set above and below EMA"),
-        ("DONCH", "Donchian Channel", "Difference between highest high and lowest low over n periods"),
-        ("STDDEV", "Standard Deviation", "Standard deviation of close price over n periods"),
-        ("PPSR", "Pivot Points", "Pivot points, supports, and resistances"),
-        ("STOK", "Fast Stochastic %K", "Fast stochastic oscillator %K"),
-        ("STO_EMA", "Stochastic Oscillator EMA", "Stochastic oscillator with EMA smoothing"),
-        ("STO_SMA", "Stochastic Oscillator SMA", "Stochastic oscillator with SMA smoothing"),
-        ("ADX", "Average Directional Movement Index", "Trend strength indicator"),
-        ("MACD", "MACD", "Moving Average Convergence Divergence"),
-        ("MassI", "Mass Index", "Detects trend reversals by measuring range expansions"),
-        ("Vortex", "Vortex Indicator", "Identifies trend reversals and confirmations"),
-        ("KST", "KST Oscillator", "Know Sure Thing momentum oscillator"),
-        ("RSI", "Relative Strength Index", "Momentum oscillator measuring speed and change of price movements"),
-        ("TSI", "True Strength Index", "Momentum oscillator"),
-        ("ACCDIST", "Accumulation/Distribution", "Volume-based indicator"),
-        ("Chaikin", "Chaikin Oscillator", "Volume-based indicator"),
-        ("MFI", "Money Flow Index", "Volume-weighted RSI"),
-        ("OBV", "On-balance Volume", "Cumulative volume indicator"),
-        ("FORCE", "Force Index", "Combines price and volume to identify strength"),
-        ("EOM", "Ease of Movement", "Volume-based oscillator"),
-        ("CCI", "Commodity Channel Index", "Deviation from average price"),
-        ("COPP", "Coppock Curve", "Long-term momentum indicator"),
-        ("ULTOSC", "Ultimate Oscillator", "Combines short, intermediate, and long-term price action"),
-    ]
+    # Define indicators by category
+    categories = {
+        "Technical Indicators": [
+            ("MA", "Moving Average", "Simple moving average of close price"),
+            ("EMA", "Exponential Moving Average", "Exponentially weighted moving average of close price"),
+            ("MOM", "Momentum", "Difference in close price over n periods"),
+            ("ROC", "Rate of Change", "Percentage change in close price over n periods"),
+            ("TRIX", "Trix", "Triple-smoothed exponential moving average"),
+            ("ATR", "Average True Range", "Volatility indicator based on true range"),
+            ("BBANDS", "Bollinger Bands", "Upper, middle, and lower bands around moving average"),
+            ("KELCH", "Keltner Channel", "Volatility-based envelope set above and below EMA"),
+            ("DONCH", "Donchian Channel", "Difference between highest high and lowest low over n periods"),
+            ("STDDEV", "Standard Deviation", "Standard deviation of close price over n periods"),
+            ("PPSR", "Pivot Points", "Pivot points, supports, and resistances"),
+            ("STOK", "Fast Stochastic %K", "Fast stochastic oscillator %K"),
+            ("STO_EMA", "Stochastic Oscillator EMA", "Stochastic oscillator with EMA smoothing"),
+            ("STO_SMA", "Stochastic Oscillator SMA", "Stochastic oscillator with SMA smoothing"),
+            ("ADX", "Average Directional Movement Index", "Trend strength indicator"),
+            ("MACD", "MACD", "Moving Average Convergence Divergence"),
+            ("MassI", "Mass Index", "Detects trend reversals by measuring range expansions"),
+            ("Vortex", "Vortex Indicator", "Identifies trend reversals and confirmations"),
+            ("KST", "KST Oscillator", "Know Sure Thing momentum oscillator"),
+            ("RSI", "Relative Strength Index", "Momentum oscillator measuring speed and change of price movements"),
+            ("TSI", "True Strength Index", "Momentum oscillator"),
+            ("ACCDIST", "Accumulation/Distribution", "Volume-based indicator"),
+            ("Chaikin", "Chaikin Oscillator", "Volume-based indicator"),
+            ("MFI", "Money Flow Index", "Volume-weighted RSI"),
+            ("OBV", "On-balance Volume", "Cumulative volume indicator"),
+            ("FORCE", "Force Index", "Combines price and volume to identify strength"),
+            ("EOM", "Ease of Movement", "Volume-based oscillator"),
+            ("CCI", "Commodity Channel Index", "Deviation from average price"),
+            ("COPP", "Coppock Curve", "Long-term momentum indicator"),
+            ("ULTOSC", "Ultimate Oscillator", "Combines short, intermediate, and long-term price action"),
+        ],
+        "Machine Learning": [
+            ("lr_ma", "Linear Regression (MA features)", "Train LR on MA(3,9) Features and Overlay Predicted Close"),
+        ],
+        "Crossover Signals": [
+            ("ma_rsi", "MA + RSI", "MA(3,6,9) and RSI"),
+        ]
+    }
+
+    # Build category sections as tabs
+    tabs_html = ""
+    tab_content_html = ""
     
-    # Build the radio buttons HTML correctly
-    radio_html = """
-    <table style='width:100%; border-collapse:collapse; background:#222; padding:8px;'>
-      <tr><th style='padding:8px; text-align:left;'>Option</th><th style='padding:8px; text-align:left;'>Description</th></tr>
-    """
-    
-    for value, label, desc in indicators:
-        radio_html += f"<tr><td style='padding:8px;'><input type='radio' name='view' value='{value}' {'checked' if value=='candles' else ''}> <b>{label}</b></td><td style='padding:8px;'>{desc}</td></tr>"
-    
-    radio_html += "</table>"
-    
+    tab_names = list(categories.keys())
+    for i, (category_name, indicators) in enumerate(categories.items()):
+        # Tab headers
+        active_class = "active" if i == 0 else ""
+        tabs_html += f"""
+        <button class="tab-button {active_class}" onclick="openTab(event, '{category_name.replace(' ', '_')}')">
+            {category_name}
+        </button>
+        """
+        
+        # Tab content
+        display_style = "block" if i == 0 else "none"
+        tab_content_html += f"""
+        <div id="{category_name.replace(' ', '_')}" class="tab-content" style="display:{display_style};">
+            <table style='width:100%; border-collapse:collapse; background:#222; padding:8px;'>
+        """
+        
+        for value, label, desc in indicators:
+            tab_content_html += f"""
+            <tr>
+                <td style='padding:8px; width:30%;'>
+                    <input type='radio' name='view' value='{value}' {'checked' if value=='candles' and i==0 else ''}>
+                    <b>{label}</b>
+                </td>
+                <td style='padding:8px;'>{desc}</td>
+            </tr>
+            """
+        
+        tab_content_html += "</table></div>"
+
     return f"""
     <html>
         <head>
             <title>Chartbot — One Click Links</title>
             <meta name='viewport' content='width=device-width, initial-scale=1' />
+            <style>
+                .tab-container {{
+                    width: 100%;
+                    margin-bottom: 20px;
+                }}
+                .tab-buttons {{
+                    display: flex;
+                    background: #222;
+                    border-radius: 8px 8px 0 0;
+                    overflow: hidden;
+                }}
+                .tab-button {{
+                    flex: 1;
+                    padding: 12px;
+                    background: #333;
+                    border: none;
+                    color: #ccc;
+                    cursor: pointer;
+                    font-size: 14px;
+                    transition: all 0.3s;
+                }}
+                .tab-button:hover {{
+                    background: #444;
+                }}
+                .tab-button.active {{
+                    background: #7fffd4;
+                    color: #23272b;
+                    font-weight: bold;
+                }}
+                .tab-content {{
+                    background: #222;
+                    padding: 15px;
+                    border-radius: 0 0 8px 8px;
+                }}
+                table {{
+                    border-radius: 8px;
+                    overflow: hidden;
+                }}
+                th, td {{
+                    border-bottom: 1px solid #333;
+                }}
+                tr:hover {{
+                    background-color: #2a2e32;
+                }}
+                .submit-container {{
+                    text-align: center;
+                    margin-top: 30px;
+                }}
+                .submit-button {{
+                    padding: 12px 24px;
+                    font-size: 16px;
+                    background: #7fffd4;
+                    color: #23272b;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-weight: bold;
+                }}
+            </style>
         </head>
         <body style='font-family: Arial; background: #181c20; color: #eee;'>
             <div style='max-width:900px; margin:40px auto; background:#23272b; border-radius:16px; box-shadow:0 2px 16px #0006; padding:32px;'>
                 <h2 style='text-align:center; color:#7fffd4;'>Chartbot — One Click Links</h2>
-                <table style='width:100%; border-collapse:collapse; margin-bottom:18px;'>
-                    <tr style='background:#222;'><th style='padding:10px; text-align:left;'>Field</th><th style='padding:10px; text-align:left;'>Value / Options</th></tr>
-                    <tr><td style='padding:8px;'>Symbol</td><td style='padding:8px;'><input id='symbol' value='BTCUSD'/></td></tr>
-                    <tr><td style='padding:8px;'>Interval</td><td style='padding:8px;'><input id='interval' value='15m'/></td></tr>
-                    <tr><td style='padding:8px;'>Days</td><td style='padding:8px;'><input id='days' type='number' value='1' min='1'/></td></tr>
-                </table>
-                <h3 style='color:#fff;'>Choose Indicator:</h3>
-                {radio_html}
-                <p style='text-align:center; margin-top:14px;'>
-                    <button id='openChart' style='padding:10px 16px; font-size:16px; background:#7fffd4; color:#23272b; border:none; border-radius:8px;'>Open Chart in new tab</button>
-                </p>
+                
+                <div style='background:#222; padding:15px; border-radius:8px; margin-bottom:20px;'>
+                    <h3 style='color:#7fffd4; margin-top:0;'>Chart Parameters</h3>
+                    <table style='width:100%; border-collapse:collapse;'>
+                        <tr><td style='padding:8px;'>Symbol</td><td style='padding:8px;'><input id='symbol' value='BTCUSD' style='width:100%; padding:5px; background:#333; color:white; border:1px solid #444; border-radius:4px;'/></td></tr>
+                        <tr><td style='padding:8px;'>Interval</td><td style='padding:8px;'><input id='interval' value='15m' style='width:100%; padding:5px; background:#333; color:white; border:1px solid #444; border-radius:4px;'/></td></tr>
+                        <tr><td style='padding:8px;'>Days</td><td style='padding:8px;'><input id='days' type='number' value='1' min='1' style='width:100%; padding:5px; background:#333; color:white; border:1px solid #444; border-radius:4px;'/></td></tr>
+                    </table>
+                </div>
+
+                <h3 style='color:#fff;'>Select Analysis Type:</h3>
+                
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        {tabs_html}
+                    </div>
+                    {tab_content_html}
+                </div>
+                
+                <div class="submit-container">
+                    <button id='openChart' class="submit-button">Open Chart in New Tab</button>
+                </div>
             </div>
             <script>
+                function openTab(evt, tabName) {{
+                    // Hide all tab contents
+                    var tabcontents = document.getElementsByClassName("tab-content");
+                    for (var i = 0; i < tabcontents.length; i++) {{
+                        tabcontents[i].style.display = "none";
+                    }}
+                    
+                    // Remove active class from all tab buttons
+                    var tabbuttons = document.getElementsByClassName("tab-button");
+                    for (var i = 0; i < tabbuttons.length; i++) {{
+                        tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
+                    }}
+                    
+                    // Show the specific tab content and add active class to the button
+                    document.getElementById(tabName).style.display = "block";
+                    evt.currentTarget.className += " active";
+                }}
+
                 document.getElementById('openChart').addEventListener('click', function(){{
                     const symbol = encodeURIComponent(document.getElementById('symbol').value || 'BTCUSD');
                     const interval = encodeURIComponent(document.getElementById('interval').value || '15m');
@@ -356,7 +470,6 @@ def home():
         </body>
     </html>
     """
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-# If you run this file with: uvicorn dashboard:app --reload
-# Visit http://127.0.0.1:8000/ to use the interface.
